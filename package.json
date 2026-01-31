@@ -33,6 +33,7 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
+    "@clerk/types": "^4.101.14",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/pg": "^8.16.0",

@@ -1,9 +1,0 @@
-model users{
-    id String @id @default(uuid())
-    clerkId String @default(uuid())
-    email String @default("") @unique()
-    name String @default("")
-    role Enum(["MENTOR", "INTERN", "ADMIN"]) @default(["INTERN"])
-    createdAt DateTime @default(now())
-    updatedAt DateTime @default(now())
-}
