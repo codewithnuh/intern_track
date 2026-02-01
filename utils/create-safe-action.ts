@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { AuthSession, getAuthSession } from "@/utils/auth-utils";
-import { ActionResponse, ErrorCode, FieldErrors } from "@/types/action-types";
+import { ActionResponse, ErrorCodes, FieldErrors } from "@/types/action-types";
 import { Result } from "@/utils/response-utils";
 
 /**
@@ -23,7 +23,7 @@ export function createSafeAction<TInput, TOutput>(
           errors: z.treeifyError(
             validatedFields.error,
           ) as FieldErrors as FieldErrors,
-          code: ErrorCode.VALIDATION_ERROR,
+          code: ErrorCodes.VALIDATION_ERROR,
         };
       }
       const result = await handler(validatedFields.data, session);
@@ -32,11 +32,11 @@ export function createSafeAction<TInput, TOutput>(
       if (error instanceof Error) {
         // Map specific errors to our Enum codes
         if (error.message === "FORBIDDEN") {
-          return Result.error(ErrorCode.FORBIDDEN, "Access denied.");
+          return Result.error(ErrorCodes.FORBIDDEN, "Access denied.");
         }
       }
       return Result.error(
-        ErrorCode.INTERNAL_ERROR,
+        ErrorCodes.INTERNAL_ERROR,
         "An unexpected error occurred.",
       );
     }
