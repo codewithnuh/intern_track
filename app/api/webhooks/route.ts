@@ -5,10 +5,6 @@ import { NextResponse } from "next/server";
 export async function POST(req: NextRequest) {
   try {
     const evt = await verifyWebhook(req);
-
-    // Do something with payload
-    // For this guide, log payload to console
-
     const eventType = evt.type;
     if (eventType == "user.created") {
       const { id, email_addresses, first_name, last_name } = evt.data;

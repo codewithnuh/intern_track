@@ -1,9 +1,7 @@
-import { getAuthSession } from "@/utils/auth-utils";
+import { protectRole } from "@/lib/rbac";
 
 export default async function DashboardPage() {
-  const isSessionActive = await getAuthSession();
-  
-  console.log(isSessionActive);
+  await protectRole(["ADMIN"]);
   return (
     <div>
       <h1>Dashboard</h1>
