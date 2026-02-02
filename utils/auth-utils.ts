@@ -1,26 +1,26 @@
 import { auth } from "@clerk/nextjs/server";
 import { db } from "@/lib/db";
-import { redirect } from "next/navigation";
-export type UserRole = "ADMIN" | "INTERN";
+export type UserRole = "ADMIN" | "INTERN" | "MENTOR" | "HR";
 export async function getAuthSession() {
-  const session = await auth();
-  if (!session || !session.userId) {
-    redirect("/sign-in");
-  }
-  const user = await db.user.findUnique({
-    where: {
-      id: session.userId,
-    },
-    select: {
-      id: true,
-      role: true,
+  const { userId: clerkId } = await auth();
+  if (!clerkId) return null;
+
+  const dbUser = await db.user.findUnique({
+    where: { clerkId },
+    include: {
+      intern: true, // Join the Intern profile
+      mentor: true, // Join the Mentor profile
     },
   });
 
+  if (!dbUser) return { clerkId, dbUser: null };
+
   return {
-    dbId: user?.id,
-    role: user?.role as UserRole | undefined,
+    clerkId,
+    id: dbUser.id,
+    role: dbUser.role,
+    status: dbUser.status,
+    // Provide a helper to get the specific profile ID
+    profileId: dbUser.intern?.id || dbUser.mentor?.id,
   };
 }
-
-export type AuthSession = Awaited<ReturnType<typeof getAuthSession>>;

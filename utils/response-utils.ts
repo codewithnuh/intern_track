@@ -1,9 +1,10 @@
-import { ActionResponse, ErrorCode, FieldErrors } from "@/types/action-types";
+import { ActionResponse, ErrorCodes, FieldErrors } from "@/types/action-types";
 
 export const Result = {
   /**
    * Returns a successful response.
    * T is inferred from the data passed in.
+   *
    */
   success: <T>(data: T, message = "Success"): ActionResponse<T> => ({
     success: true,
@@ -21,14 +22,14 @@ export const Result = {
     success: false,
     message,
     errors,
-    code: ErrorCode.VALIDATION_ERROR,
+    code: ErrorCodes.VALIDATION_ERROR,
   }),
 
   /**
    * Returns a generic error (Auth, Forbidden, Server Error)
    */
   error: (
-    code: ErrorCode,
+    code: ErrorCodes,
     message: string,
     errors: FieldErrors = {},
   ): ActionResponse<never> => ({

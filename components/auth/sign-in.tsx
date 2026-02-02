@@ -5,13 +5,13 @@ import { Button } from "@/components/ui/button";
 import { useForm } from "@tanstack/react-form";
 import { Card, CardContent } from "@/components/ui/card";
 import { useSignIn } from "@clerk/nextjs";
+import { handleAuthError } from "@/utils/auth-error-handler";
 import {
   Field,
   FieldDescription,
   FieldError,
   FieldGroup,
   FieldLabel,
-  FieldSeparator,
 } from "@/components/ui/field";
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
@@ -60,10 +60,10 @@ export function SignInForm({
         console.log("Sign in status:", result.status);
         setError("Unable to complete sign in. Please try again.");
       }
-    } catch (err: any) {
-      console.error("Sign in error:", err);
-      setError(err.errors?.[0]?.message || "Invalid email or password.");
-      toast.error(err.errors?.[0]?.message || "Sign in failed");
+    } catch (err) {
+      const { message } = handleAuthError(err);
+      setError(message);
+      toast.error(message);
     } finally {
       setIsLoading(false);
     }
@@ -84,7 +84,7 @@ export function SignInForm({
 
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
-      <Card className="overflow-hidden p-0">
+      <Card className="overflow-hidden bg-muted/60 backdrop:blur-md p-0">
         <CardContent className="p-0">
           <form
             id="sign-in"

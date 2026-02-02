@@ -10,13 +10,12 @@ export async function POST(req: NextRequest) {
       const { id, email_addresses, first_name, last_name } = evt.data;
       const email = email_addresses[0]?.email_address;
       try {
-        await UserService.create({
+        await UserService.createInitialAccount({
           email: email,
-          role: "INTERN",
-          status: "PENDING_ONBOARDING",
           name: `${first_name} ${last_name}`,
           clerkId: id,
-          skills: [],
+          createdAt: new Date(),
+          updatedAt: new Date(),
         });
         return NextResponse.json({ message: "User created" }, { status: 201 });
       } catch (error) {

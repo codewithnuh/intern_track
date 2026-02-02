@@ -1,7 +1,7 @@
 import { db } from "@/lib/db";
 
 import { ErrorCodes } from "@/types/action-types";
-import { UserCreateInput } from "@/schemas/user.schema";
+import type { User } from "@/schemas/user.schema";
 
 export class ServiceError extends Error {
   constructor(
@@ -14,11 +14,28 @@ export class ServiceError extends Error {
 }
 
 export const UserService = {
+  async createInitialAccount(data: {
+    clerkId: string;
+    email: string;
+    name: string;
+    createdAt: Date;
+    updatedAt: Date;
+  }) {
+    return await db.user.create({
+      data: {
+        clerkId: data.clerkId,
+        email: data.email,
+        name: data.name,
+        role: "INTERN", // Default role
+        status: "PENDING_ONBOARDING",
+      },
+    });
+  },
   /**
    * Creates a new user in the database.
    * Note: This accepts the TInput we defined in the Zod schema.
    */
-  async create(data: UserCreateInput) {
+  async create(data: User) {
     const existingUser = await db.user.findUnique({
       where: {
         email: data.email,
@@ -53,5 +70,21 @@ export const UserService = {
     }
 
     return {};
+  },
+  async delete(id: string) {
+    try {
+      await db.user.delete({
+        where: {
+          id,
+        },
+      });
+    } catch (error) {
+      if (error) {
+        throw new ServiceError(
+          ErrorCodes.INTERNAL_ERROR,
+          "Failed to delete user",
+        );
+      }
+    }
   },
 };

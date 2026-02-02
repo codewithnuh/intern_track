@@ -5,19 +5,21 @@ import { Button } from "@/components/ui/button";
 import { useForm } from "@tanstack/react-form";
 import { Card, CardContent } from "@/components/ui/card";
 import { useSignUp } from "@clerk/nextjs";
+import { AuthError } from "@/types/auth";
+import { isClerkAPIResponseError } from "@clerk/nextjs/errors";
 import {
   Field,
   FieldDescription,
   FieldError,
   FieldGroup,
   FieldLabel,
-  FieldSeparator,
 } from "@/components/ui/field";
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { OTPForm } from "../otp-form";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner"; // or your toast library
+import { handleAuthError } from "@/utils/auth-error-handler";
 
 const formSchema = z.object({
   firstName: z
@@ -28,7 +30,7 @@ const formSchema = z.object({
     .string()
     .min(2, { message: "Last name must be at least 2 characters." })
     .max(255),
-  email: z.string().email({ message: "Please enter a valid email." }).max(255),
+  email: z.email({ message: "Please enter a valid email." }).max(255),
   password: z
     .string()
     .min(8, { message: "Password must be at least 8 characters." })
@@ -45,6 +47,7 @@ export function SignupForm({
   const [verifying, setVerifying] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string>("");
+  const [authError, setAuthError] = useState<AuthError | null>(null);
   const { isLoaded, setActive, signUp } = useSignUp();
 
   // Handle signup
@@ -68,10 +71,10 @@ export function SignupForm({
 
       setVerifying(true);
       toast.success("Verification code sent to your email!");
-    } catch (err: any) {
-      console.error("Signup error:", err);
-      setError(err.errors?.[0]?.message || "An error occurred during signup.");
-      toast.error(err.errors?.[0]?.message || "Signup failed");
+    } catch (err) {
+      const { message } = handleAuthError(err);
+      setError(message);
+      toast.error(message);
     } finally {
       setIsLoading(false);
     }
@@ -80,25 +83,26 @@ export function SignupForm({
   // Handle OTP verification
   const onVerify = async (code: string) => {
     if (!isLoaded) return;
-
     setIsLoading(true);
-    setError("");
+    setAuthError(null); // Clear previous errors
 
     try {
       const attempt = await signUp.attemptEmailAddressVerification({ code });
-
       if (attempt?.status === "complete") {
         await setActive({ session: attempt.createdSessionId });
         toast.success("Account created successfully!");
-        router.push("/dashboard"); // Redirect to your dashboard
+        router.push("/dashboard");
       } else {
-        setError("Verification failed. Please try again.");
-        toast.error("Invalid verification code");
+        // Fallback for unexpected statuses
+        setAuthError({ message: "Verification failed. Please try again." });
       }
-    } catch (err: any) {
-      console.error("Verification error:", err);
-      setError(err.errors?.[0]?.message || "Verification failed.");
-      toast.error(err.errors?.[0]?.message || "Verification failed");
+    } catch (err) {
+      const { message } = handleAuthError(err);
+      // Extract clerk code if available
+      const code = isClerkAPIResponseError(err)
+        ? err.errors[0]?.code
+        : undefined;
+      setAuthError({ message, code });
     } finally {
       setIsLoading(false);
     }
@@ -116,9 +120,10 @@ export function SignupForm({
         strategy: "email_code",
       });
       toast.success("New verification code sent!");
-    } catch (err: any) {
-      console.error("Resend error:", err);
-      toast.error("Failed to resend code");
+    } catch (err) {
+      const { message } = handleAuthError(err);
+      setError(message);
+      toast.error(message);
     } finally {
       setIsLoading(false);
     }
@@ -146,11 +151,11 @@ export function SignupForm({
           onVerify={onVerify}
           onResend={onResendCode}
           isLoading={isLoading}
-          error={error}
+          error={authError}
           onBack={() => setVerifying(false)}
         />
       ) : (
-        <Card className="overflow-hidden p-0">
+        <Card className="overflow-hidden p-0 bg-muted/60 backdrop:blur-2xl shadow-md">
           <CardContent className="p-0">
             <form
               id="sign-up"

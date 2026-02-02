@@ -1,117 +1,108 @@
 import { z } from "zod";
 
-// ============================================================================
-// 1. ENUMS (mirroring Prisma enums)
-// ============================================================================
-export const Role = z.enum(["INTERN", "ADMIN"]);
-export type Role = z.infer<typeof Role>;
+// ==========================================
+// 1. ENUMS (Mirrors Prisma Enums)
+// ==========================================
+export const RoleEnum = z.enum(["INTERN", "ADMIN", "MENTOR", "HR"]);
 
-export const Status = z.enum([
+// Handles the HR User Review Workflow
+export const UserStatusEnum = z.enum([
   "PENDING_ONBOARDING",
   "PENDING_APPROVAL",
   "ACTIVE",
-  "DISAPPROVED",
+  "REJECTED",
+  "SUSPENDED",
 ]);
-export type Status = z.infer<typeof Status>;
 
-// ============================================================================
-// 2. DATABASE SCHEMA (exact Prisma model representation)
-// Use this when validating Prisma query results or for type-safe DB operations
-// ============================================================================
+// Handles Request-based Workflows (Leave, etc.)
+export const ApprovalStatusEnum = z.enum(["PENDING", "APPROVED", "REJECTED"]);
+
+export const TaskStatusEnum = z.enum([
+  "TODO",
+  "IN_PROGRESS",
+  "REVIEW",
+  "COMPLETED",
+]);
+
+// ==========================================
+// 2. CORE IDENTITY (User Model)
+// ==========================================
 export const UserSchema = z.object({
-  id: z.uuid(),
-  clerkId: z.uuid(),
-  email: z.email(),
-  name: z.string(),
-  role: Role,
-  status: Status,
+  id: z.string().uuid(),
+  clerkId: z.string(), // Clerk IDs are strings, not UUIDs
+  name: z.string().min(1, "Name is required"),
+  email: z.string().email("Invalid email address"),
+  role: RoleEnum.default("INTERN"),
+  status: UserStatusEnum.default("PENDING_ONBOARDING"),
   createdAt: z.date(),
   updatedAt: z.date(),
-  disapprovedAt: z.date().nullable(),
-  university: z.string().nullable(),
-  major: z.string().nullable(),
-  skills: z.array(z.string()), // Required array (can be empty)
-  resumeUrl: z.url().nullable(),
-  portfolioUrl: z.url().nullable(),
-  department: z.string().nullable(),
-  startDate: z.date().nullable(),
 });
 
-// ============================================================================
-// 3. API INPUT SCHEMAS (for route validation)
-// JSON doesn't support Date objects, so we use coercion or string validation
-// ============================================================================
-
-// For POST /users - Create new user
-export const CreateUserSchema = z.object({
-  email: z.email("Invalid email format"),
-  name: z.string().min(1).max(100).optional().default(""),
-  clerkId: z.uuid().optional(), // Has @default in DB
-  role: Role.optional().default("INTERN"),
-  status: Status.optional().default("PENDING_ONBOARDING"),
-  university: z.string().max(100).optional(),
-  major: z.string().max(100).optional(),
-  skills: z.array(z.string().max(50)).max(20).default([]), // Max 20 skills, 50 chars each
-  resumeUrl: z.url().optional(),
-  portfolioUrl: z.url().optional(),
-  department: z.string().max(50).optional(),
-  startDate: z.coerce.date().optional(), // Accepts ISO 8601 strings
+// ==========================================
+// 3. SPECIALIZED PROFILES
+// ==========================================
+export const InternProfileSchema = z.object({
+  id: z.string().uuid(), // user_id
+  university: z.string().min(2, "University name is required"),
+  mentorId: z.string().uuid().nullable().optional(),
 });
 
-// For PATCH /users/:id - Partial updates
-export const UpdateUserSchema = z.object({
-  name: z.string().min(1).max(100).optional(),
-  role: Role.optional(),
-  status: Status.optional(),
-  university: z.string().max(100).nullable().optional(),
-  major: z.string().max(100).nullable().optional(),
-  skills: z.array(z.string().max(50)).max(20).optional(),
-  resumeUrl: z.url().nullable().optional(),
-  portfolioUrl: z.url().nullable().optional(),
-  department: z.string().max(50).nullable().optional(),
-  startDate: z.coerce.date().nullable().optional(),
-  disapprovedAt: z.coerce.date().nullable().optional(), // Set when status becomes DISAPPROVED
+export const MentorProfileSchema = z.object({
+  id: z.string().uuid(), // user_id
+  departmentId: z.string().uuid(),
 });
 
-// ============================================================================
-// 4. STRICT API SCHEMA (if you prefer string timestamps over coercion)
-// ============================================================================
-export const CreateUserApiSchema = z.object({
-  email: z.email(),
-  name: z.string().optional(),
-  clerkId: z.uuid().optional(),
-  role: Role.optional(),
-  status: Status.optional(),
-  skills: z.array(z.string()).optional(),
-  resumeUrl: z.url().optional(),
-  portfolioUrl: z.url().optional(),
-  startDate: z.iso.datetime().optional(), // ISO 8601 strict
+// ==========================================
+// 4. FUNCTIONAL SCHEMAS (Server Action Inputs)
+// ==========================================
+
+// Intern Onboarding Form
+export const InternOnboardingSchema = z.object({
+  name: z.string().min(2, "Full name is required"),
+  university: z.string().min(2, "University is required"),
 });
 
-// ============================================================================
-// 5. BUSINESS LOGIC SCHEMAS (specific workflow validations)
-// ============================================================================
+// Leave Request Form
+export const CreateLeaveRequestSchema = z
+  .object({
+    internId: z.string().uuid(),
+    startDate: z.coerce.date({ error: "Start date is required" }),
+    endDate: z.coerce.date({ error: "End date is required" }),
+    reason: z.string().min(5, "Please provide a valid reason"),
+    status: ApprovalStatusEnum.default("PENDING"),
+  })
+  .refine((data) => data.endDate >= data.startDate, {
+    message: "End date cannot be before start date",
+    path: ["endDate"],
+  });
 
-// Specific transition for approval workflow
-export const ApproveUserSchema = z.object({
-  status: z.literal("ACTIVE"),
-  department: z.string().min(1), // Required when approving
-  startDate: z.coerce.date(),
+// HR Review Action
+export const UserReviewSchema = z.object({
+  userId: z.string().uuid(),
+  status: z.enum(["ACTIVE", "REJECTED"]), // HR only picks these two
 });
 
-// Specific transition for rejection
-export const DisapproveUserSchema = z.object({
-  status: z.literal("DISAPPROVED"),
-  disapprovedAt: z.coerce.date().default(() => new Date()),
+// Task Creation
+export const CreateTaskSchema = z.object({
+  title: z.string().min(3, "Title too short"),
+  projectId: z.string().uuid(),
+  assigneeId: z.string().uuid(),
+  status: TaskStatusEnum.default("TODO"),
 });
 
-// ============================================================================
-// 6. TYPE EXPORTS
-// ============================================================================
+// Feedback
+export const FeedbackSchema = z.object({
+  content: z.string().min(10, "Feedback must be more detailed"),
+  rating: z.number().int().min(1).max(5),
+  internId: z.string().uuid(),
+  reviewerId: z.string().uuid(),
+});
+
+// ==========================================
+// 5. TYPES
+// ==========================================
 export type User = z.infer<typeof UserSchema>;
-export type CreateUserInput = z.infer<typeof CreateUserSchema>;
-export type UpdateUserInput = z.infer<typeof UpdateUserSchema>;
-
-// Prisma-compatible types (if you need exact matches)
-export type UserCreateInput = z.infer<typeof CreateUserSchema>;
-export type UserUpdateInput = z.infer<typeof UpdateUserSchema>;
+export type UserStatus = z.infer<typeof UserStatusEnum>;
+export type ApprovalStatus = z.infer<typeof ApprovalStatusEnum>;
+export type InternProfile = z.infer<typeof InternProfileSchema>;
+export type LeaveRequestInput = z.infer<typeof CreateLeaveRequestSchema>;

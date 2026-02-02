@@ -1,14 +1,11 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, JetBrains_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Inter } from "next/font/google";
 import "./globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "sonner";
-import { Header, Navbar } from "@/components/globals/header";
-const jetbrainsMono = JetBrains_Mono({
-  subsets: ["latin"],
-  variable: "--font-sans",
-});
+// import { Header, Navbar } from "@/components/globals/header";
+const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -32,11 +29,7 @@ export default function RootLayout({
 }>) {
   return (
     <ClerkProvider>
-      <html
-        suppressHydrationWarning
-        lang="en"
-        className={jetbrainsMono.variable}
-      >
+      <html suppressHydrationWarning lang="en" className={inter.variable}>
         <body
           className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         >
@@ -46,7 +39,7 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
-            <Navbar />
+            {/*<Navbar />*/}
             {children}
             <Toaster />
           </ThemeProvider>

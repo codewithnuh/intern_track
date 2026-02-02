@@ -18,6 +18,7 @@ import {
   InputOTPGroup,
   InputOTPSlot,
 } from "@/components/ui/input-otp";
+import { AuthError } from "@/types/auth";
 import { useState } from "react";
 // import type { AuthError } from "@/types/auth";
 
@@ -25,7 +26,7 @@ interface OTPFormProps extends React.ComponentProps<typeof Card> {
   onVerify: (code: string) => Promise<void>;
   onResend: () => Promise<void>;
   isLoading?: boolean;
-  error?: any;
+  error?: AuthError | null;
   onBack?: () => void;
 }
 
