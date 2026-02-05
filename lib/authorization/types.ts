@@ -6,7 +6,7 @@ export type Action =
   | "approve"
   | "manage";
 
-export type Resources =
+export type Resource =
   | "Intern"
   | "Mentor"
   | "Task"
@@ -14,4 +14,4 @@ export type Resources =
   | "Attendace"
   | "LeaveRequest"
   | "Feedback";
-export type Permission = `${Action}:${Resources}` | "*";
+export type Permission = `${Action}:${Resource}` | "*";
