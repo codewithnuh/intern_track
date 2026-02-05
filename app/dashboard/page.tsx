@@ -1,4 +1,4 @@
-import { protectRole } from "@/lib/rbac";
+import { protectRole } from "@/utils/rbac";
 
 export default async function DashboardPage() {
   await protectRole(["ADMIN"]);

@@ -28,10 +28,10 @@ export const TaskStatusEnum = z.enum([
 // 2. CORE IDENTITY (User Model)
 // ==========================================
 export const UserSchema = z.object({
-  id: z.string().uuid(),
+  id: z.uuid(),
   clerkId: z.string(), // Clerk IDs are strings, not UUIDs
   name: z.string().min(1, "Name is required"),
-  email: z.string().email("Invalid email address"),
+  email: z.email("Invalid email address"),
   role: RoleEnum.default("INTERN"),
   status: UserStatusEnum.default("PENDING_ONBOARDING"),
   createdAt: z.date(),
@@ -65,7 +65,7 @@ export const InternOnboardingSchema = z.object({
 // Leave Request Form
 export const CreateLeaveRequestSchema = z
   .object({
-    internId: z.string().uuid(),
+    internId: z.uuid(),
     startDate: z.coerce.date({ error: "Start date is required" }),
     endDate: z.coerce.date({ error: "End date is required" }),
     reason: z.string().min(5, "Please provide a valid reason"),
@@ -78,15 +78,15 @@ export const CreateLeaveRequestSchema = z
 
 // HR Review Action
 export const UserReviewSchema = z.object({
-  userId: z.string().uuid(),
+  userId: z.uuid(),
   status: z.enum(["ACTIVE", "REJECTED"]), // HR only picks these two
 });
 
 // Task Creation
 export const CreateTaskSchema = z.object({
   title: z.string().min(3, "Title too short"),
-  projectId: z.string().uuid(),
-  assigneeId: z.string().uuid(),
+  projectId: z.uuid(),
+  assigneeId: z.uuid(),
   status: TaskStatusEnum.default("TODO"),
 });
 
@@ -94,8 +94,8 @@ export const CreateTaskSchema = z.object({
 export const FeedbackSchema = z.object({
   content: z.string().min(10, "Feedback must be more detailed"),
   rating: z.number().int().min(1).max(5),
-  internId: z.string().uuid(),
-  reviewerId: z.string().uuid(),
+  internId: z.uuid(),
+  reviewerId: z.uuid(),
 });
 
 // ==========================================
@@ -106,3 +106,4 @@ export type UserStatus = z.infer<typeof UserStatusEnum>;
 export type ApprovalStatus = z.infer<typeof ApprovalStatusEnum>;
 export type InternProfile = z.infer<typeof InternProfileSchema>;
 export type LeaveRequestInput = z.infer<typeof CreateLeaveRequestSchema>;
+export type Role = z.infer<typeof RoleEnum>;
