@@ -290,6 +290,7 @@ export function SignupForm({
                 <Field>
                   <Button
                     type="submit"
+                    variant={"default"}
                     className="w-full cursor-pointer"
                     form="sign-up"
                     disabled={isLoading}
