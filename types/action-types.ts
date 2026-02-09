@@ -11,7 +11,7 @@ export enum ErrorCodes {
 export type ActionResponse<T> =
   | {
       success: true;
-      data?: T;
+      data: T;
       message: string;
     }
   | {

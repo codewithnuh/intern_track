@@ -11,7 +11,8 @@ export type Resource =
   | "Mentor"
   | "Task"
   | "Project"
-  | "Attendace"
+  | "Attendance"
   | "LeaveRequest"
-  | "Feedback";
+  | "Feedback"
+  | "Department";
 export type Permission = `${Action}:${Resource}` | "*";

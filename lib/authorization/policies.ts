@@ -6,6 +6,8 @@ import {
   LeaveRequestFull as LeaveRequest,
   MentorFull as Mentor,
   FeedbackFull as Feedback,
+  ProjectFull as Project,
+  DepartmentFull as Department,
 } from "@/schemas/user.schema";
 
 export const policies = {
@@ -41,10 +43,22 @@ export const policies = {
     if (user.role === "MENTOR") return mentor.id === user.id;
     return false;
   },
-  FeedBack: (user: User, feedback: Feedback) => {
+  Feedback: (user: User, feedback: Feedback) => {
     if (user.role === "ADMIN") return true;
     if (user.role === "MENTOR") return feedback.intern.mentorId === user.id;
     if (user.role === "INTERN") return feedback.internId === user.id;
+    return false;
+  },
+  Project: (user: User, project: Project) => {
+    if (user.role === "ADMIN") return true;
+    if (user.role === "MENTOR")
+      return project.departmentId === user.mentor?.departmentId;
+    return false;
+  },
+  Department: (user: User, department: Department) => {
+    if (user.role === "ADMIN") return true;
+    if (user.role === "MENTOR")
+      return department.id === user.mentor?.departmentId;
     return false;
   },
 };

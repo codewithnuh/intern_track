@@ -47,29 +47,19 @@ export const UserService = {
         "Email already exists",
       );
     }
-    try {
-      const user = await db.user.create({
-        data,
-        select: {
-          id: true,
-          email: true,
-          name: true,
-          createdAt: true,
-          updatedAt: true,
-          role: true,
-        },
-      });
-      return user;
-    } catch (error) {
-      if (error) {
-        throw new ServiceError(
-          ErrorCodes.INTERNAL_ERROR,
-          "Failed to create user",
-        );
-      }
-    }
 
-    return {};
+    const user = await db.user.create({
+      data,
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        createdAt: true,
+        updatedAt: true,
+        role: true,
+      },
+    });
+    return user;
   },
   async delete(id: string) {
     try {
@@ -85,6 +75,31 @@ export const UserService = {
           "Failed to delete user",
         );
       }
+    }
+  },
+  async getById(id: string) {
+    try {
+      const user = await db.user.findUnique({
+        where: {
+          clerkId: id,
+        },
+        select: {
+          id: true,
+          email: true,
+          name: true,
+          createdAt: true,
+          updatedAt: true,
+          role: true,
+          intern: true,
+          mentor: true,
+        },
+      });
+      if (!user) {
+        throw new ServiceError(ErrorCodes.NOT_FOUND, "User not found");
+      }
+      return user;
+    } catch (error) {
+      console.error(error);
     }
   },
 };

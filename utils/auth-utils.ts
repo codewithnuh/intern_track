@@ -1,26 +1,43 @@
+// utils/auth-utils.ts
+
 import { auth } from "@clerk/nextjs/server";
 import { db } from "@/lib/db";
+
 export type UserRole = "ADMIN" | "INTERN" | "MENTOR" | "HR";
-export async function getAuthSession() {
+
+export type AuthSession = {
+  clerkId: string;
+  id: string;
+  role: UserRole;
+  status: string;
+  profileId?: string;
+} | null;
+
+export async function getAuthSession(): Promise<AuthSession> {
   const { userId: clerkId } = await auth();
-  if (!clerkId) return null;
+
+  if (!clerkId) {
+    return null;
+  }
 
   const dbUser = await db.user.findUnique({
     where: { clerkId },
     include: {
-      intern: true, // Join the Intern profile
-      mentor: true, // Join the Mentor profile
+      intern: true,
+      mentor: true,
     },
   });
 
-  if (!dbUser) return { clerkId, dbUser: null };
+  if (!dbUser) {
+    // User exists in Clerk but not in DB - you might want to create them
+    return null;
+  }
 
   return {
     clerkId,
     id: dbUser.id,
-    role: dbUser.role,
+    role: dbUser.role as UserRole,
     status: dbUser.status,
-    // Provide a helper to get the specific profile ID
     profileId: dbUser.intern?.id || dbUser.mentor?.id,
   };
 }

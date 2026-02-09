@@ -64,7 +64,7 @@ export const MentorSchema = z.object({
 export type Mentor = z.infer<typeof MentorSchema>;
 
 export const DepartmentSchema = z.object({
-  id: z.string().uuid(),
+  id: z.uuid().optional(),
   name: z.string(),
 });
 export type Department = z.infer<typeof DepartmentSchema>;

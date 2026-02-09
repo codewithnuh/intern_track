@@ -1,7 +1,8 @@
 import { z } from "zod";
-import { AuthSession, getAuthSession } from "@/utils/auth-utils";
+import { getAuthSession } from "@/utils/auth-utils";
 import { ActionResponse, ErrorCodes, FieldErrors } from "@/types/action-types";
 import { Result } from "@/utils/response-utils";
+import { Session } from "@clerk/nextjs/server";
 
 /**
  *@template TInput - The shape of data after zod validation.
@@ -9,7 +10,7 @@ import { Result } from "@/utils/response-utils";
  **/
 export function createSafeAction<TInput, TOutput>(
   schema: z.ZodSchema<TInput>,
-  handler: (data: TInput, session: AuthSession) => Promise<TOutput>,
+  handler: (data: TInput, session: Session | null) => Promise<TOutput>,
 ) {
   return async (formData: FormData): Promise<ActionResponse<TOutput>> => {
     try {
@@ -26,9 +27,13 @@ export function createSafeAction<TInput, TOutput>(
           code: ErrorCodes.VALIDATION_ERROR,
         };
       }
-      const result = await handler(validatedFields.data, session);
+      const result = await handler(
+        validatedFields.data,
+        session as Session | null,
+      );
       return Result.success(result);
     } catch (error) {
+      // console.error(error);
       if (error instanceof Error) {
         // Map specific errors to our Enum codes
         if (error.message === "FORBIDDEN") {
