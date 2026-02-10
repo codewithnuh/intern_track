@@ -47,7 +47,7 @@ export const GlobalCompliance: React.FC = () => {
       endLat: 3.139,
       endLng: 101.6869,
       arcAlt: 0.2,
-      color: colors[Math.floor(Math.random() * (colors.length - 1))],
+      color: colors[Math.floor(0.2323 * (colors.length - 1))],
     },
     {
       order: 1,

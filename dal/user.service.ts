@@ -65,7 +65,7 @@ export const UserService = {
     try {
       await db.user.delete({
         where: {
-          id,
+          clerkId: id,
         },
       });
     } catch (error) {

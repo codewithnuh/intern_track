@@ -1,16 +1,19 @@
 "use client";
 
-import { deleteDepartmentAction } from "@/actions/department.action";
+import { createDepartmentAction } from "@/actions/department.action";
 
 export default function TestPage() {
   async function test() {
     const formData = new FormData();
-    formData.append("id", "b3e26d08-3dc6-41f9-8104-696868095682");
-    // formData.append("name", "Updated NAME");
+    formData.append("name", "Updated NAME");
 
-    const res = await deleteDepartmentAction(formData);
+    const res = await createDepartmentAction(formData);
     console.log(res);
   }
 
-  return <button onClick={test}>Test Create Department</button>;
+  return (
+    <div className="mt-20">
+      <button onClick={test}>Test Create Department</button>;
+    </div>
+  );
 }

@@ -18,7 +18,7 @@ export const Hero: React.FC = () => {
 
         <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight mb-8 leading-[1.1]">
           Seamless{" "}
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-blue-400">
+          <span className="text-transparent bg-clip-text bg-linear-to-r from-primary to-blue-400">
             Intern Lifecycle
           </span>
           <br />

@@ -24,6 +24,9 @@ async function main() {
       emailAddress: [adminEmail],
       password: "akjslkdjkwlejkajskdjaskl", // Change this on first login
       publicMetadata: { role: "ADMIN" },
+      skipLegalChecks: true,
+      skipPasswordChecks: true,
+      skipPasswordRequirement: true,
     });
     console.log(`✅ New Admin created in Clerk: ${clerkUser.id}`);
   }
