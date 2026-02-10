@@ -6,7 +6,7 @@ import { authorize } from "@/lib/authorization";
 import { UserService } from "@/dal/user.service";
 import { currentUser } from "@clerk/nextjs/server";
 import { UserFull } from "@/schemas/user.schema";
-
+import { getAuthSession } from "@/utils/auth-utils";
 export const createDepartmentAction = createSafeAction(
   DepartmentSchema,
   async (data) => {
@@ -24,6 +24,7 @@ export const createDepartmentAction = createSafeAction(
       clerkId: clerkUser.id,
       status: "ACTIVE" as const, // Assuming an active user is performing this action
     };
+
     await authorize(authorizedUser as UserFull, "create", "Department");
     return await DepartmentService.create(data);
   },
@@ -49,5 +50,16 @@ export const updateDepartmentAction = createSafeAction(
     if (!data.id) throw new Error("Please Provide proper data");
     const dept = await DepartmentService.update(data.id, data);
     return dept;
+  },
+);
+
+export const deleteDepartmentAction = createSafeAction(
+  DepartmentSchema,
+  async (data) => {
+    const currentUser = await getAuthSession();
+    if (!currentUser) throw new Error("No user found");
+    if (!data.id) throw new Error("Please Provide proper data");
+    const deletedDept = await DepartmentService.deleteDepartment(data.id);
+    return deletedDept;
   },
 );

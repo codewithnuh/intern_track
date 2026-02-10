@@ -33,6 +33,7 @@ export function createSafeAction<TInput, TOutput>(
       );
       return Result.success(result);
     } catch (error) {
+      console.log(error);
       // console.error(error);
       if (error instanceof Error) {
         // Map specific errors to our Enum codes

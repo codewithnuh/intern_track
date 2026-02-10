@@ -8,5 +8,6 @@ ignoredBuiltDependencies:
 onlyBuiltDependencies:
   - '@clerk/shared'
   - '@prisma/engines'
+  - esbuild
   - msw
   - prisma

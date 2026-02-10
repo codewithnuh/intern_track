@@ -11,12 +11,11 @@ export const DepartmentService = {
       });
       return department;
     } catch (error) {
-      if (error) {
-        throw new ServiceError(
-          ErrorCodes.INTERNAL_ERROR,
-          "Failed to create department",
-        );
-      }
+      console.error(error);
+      throw new ServiceError(
+        ErrorCodes.INTERNAL_ERROR,
+        "Failed to create department",
+      );
     }
   },
   async update(id: string, data: Department) {
@@ -75,17 +74,19 @@ export const DepartmentService = {
     }
   },
   async deleteDepartment(id: string) {
-    const dept = await db.department.findFirst({
-      where: {
-        id,
-      },
-    });
-    if (!dept) throw new Error("No department Found");
-    const deletedDept = await db.department.delete({
-      where: {
-        id: dept.id,
-      },
-    });
-    return deletedDept;
+    try {
+      return await db.department.delete({
+        where: { id },
+      });
+    } catch (error) {
+      if (error.code === "P2025") {
+        throw new ServiceError(ErrorCodes.NOT_FOUND, "Department not found");
+      }
+
+      throw new ServiceError(
+        ErrorCodes.INTERNAL_ERROR,
+        "Failed to delete department",
+      );
+    }
   },
 };

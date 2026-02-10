@@ -4,7 +4,8 @@ import "./globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "sonner";
-// import { Header, Navbar } from "@/components/globals/header";
+import { Navbar } from "@/components/globals/nav";
+import { Footer } from "@/components/globals/footer";
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
 const geistSans = Geist({
@@ -31,7 +32,7 @@ export default function RootLayout({
     <ClerkProvider>
       <html suppressHydrationWarning lang="en" className={inter.variable}>
         <body
-          className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+          className={`${geistSans.variable} ${geistMono.variable} antialiased `}
         >
           <ThemeProvider
             attribute="class"
@@ -39,8 +40,9 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
-            {/*<Navbar />*/}
+            <Navbar />
             {children}
+            <Footer />
             <Toaster />
           </ThemeProvider>
         </body>

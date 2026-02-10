@@ -3,7 +3,7 @@ import Link from "next/link";
 
 export default function SignUpPage() {
   return (
-    <div className="flex min-h-svh flex-col items-center justify-center gap-6 bg-background p-6 md:p-10">
+    <div className="flex min-h-svh my-20 flex-col items-center justify-center gap-6 bg-background p-6 md:p-10">
       <div className="flex w-full max-w-md flex-col gap-6">
         <Link
           href="/"
