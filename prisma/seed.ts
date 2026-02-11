@@ -1,4 +1,3 @@
-import { ClerkSyncService } from "@/lib/clerk-sync";
 import db from "@/lib/db";
 import { createClerkClient } from "@clerk/nextjs/server";
 
@@ -23,6 +22,8 @@ async function main() {
   } else {
     clerkUser = await clerk.users.createUser({
       emailAddress: [adminEmail],
+      firstName: "Noor",
+      lastName: "ul Hassan",
       password: "akjslkdjkwlejkajskdjaskl", // Change this on first login
       publicMetadata: { role: "ADMIN", status: "ACTIVE" },
       skipLegalChecks: true,

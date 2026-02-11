@@ -8,9 +8,12 @@ const isRejectedPage = createRouteMatcher(["/dashboard/intern/rejected(.*)"]);
 const isOnboardingPage = createRouteMatcher([
   "/dashboard/intern/onboarding(.*)",
 ]);
+const isPrivateRoute = createRouteMatcher(["/dashboard(.*)"]);
 export default clerkMiddleware(async (auth, req) => {
   const { sessionClaims } = await auth();
-
+  if (isPrivateRoute(req)) {
+    await auth.protect();
+  }
   if (!sessionClaims) return NextResponse.next();
   const role = sessionClaims?.metadata.role;
   const status = sessionClaims?.metadata.status;
