@@ -1,4 +1,5 @@
 import { SignupForm } from "@/components/auth/sign-up";
+import { Clipboard } from "lucide-react";
 import Link from "next/link";
 
 export default function SignUpPage() {
@@ -9,10 +10,14 @@ export default function SignUpPage() {
           href="/"
           className="flex items-center gap-2 self-center font-medium"
         >
-          <div className="flex h-6 w-6 items-center justify-center rounded-md bg-primary text-primary-foreground">
-            IT
+          <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center group-hover:rotate-12 transition-transform shadow-lg shadow-primary/20">
+            <Link href={"/"}>
+              <Clipboard />
+            </Link>
           </div>
-          InternTrack
+          <p className="text-primary-foreground font-extrabold text-2xl">
+            InternTrack
+          </p>
         </Link>
         <SignupForm />
       </div>

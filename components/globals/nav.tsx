@@ -2,6 +2,7 @@ import React from "react";
 import { Button } from "../ui/button";
 import Link from "next/link";
 import { currentUser } from "@clerk/nextjs/server";
+
 import {
   Popover,
   PopoverContent,
@@ -9,7 +10,8 @@ import {
 } from "@/components/ui/popover";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Container } from "./container";
-import { Settings, LogOut, User } from "lucide-react";
+import { Settings, LogOut, User, Clipboard } from "lucide-react";
+import LogoutButton from "./logout-button";
 
 export const Navbar: React.FC = async () => {
   const user = await currentUser();
@@ -20,19 +22,7 @@ export const Navbar: React.FC = async () => {
           <div className="flex items-center gap-3 group cursor-pointer">
             <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center group-hover:rotate-12 transition-transform shadow-lg shadow-primary/20">
               <Link href={"/"}>
-                <svg
-                  className="w-6 h-6 text-white"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={3}
-                    d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
-                  />
-                </svg>
+                <Clipboard />
               </Link>
             </div>
             <span className="text-2xl font-black tracking-tight">
@@ -137,17 +127,7 @@ export const Navbar: React.FC = async () => {
 
                   {/* Logout - Danger Action */}
                   <div className="p-1">
-                    <form method="post">
-                      <Button
-                        variant={"secondary"}
-                        type="submit"
-                        className="w-full gap-2 cursor-pointer transition-colors"
-                        aria-label="Log out of your account"
-                      >
-                        <LogOut width={20} height={20} />
-                        Log Out
-                      </Button>
-                    </form>
+                    <LogoutButton />
                   </div>
                 </PopoverContent>
               </Popover>
