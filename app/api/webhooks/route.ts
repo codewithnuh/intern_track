@@ -1,8 +1,8 @@
 import { UserService } from "@/dal/user.service";
+import { ClerkSyncService } from "@/lib/clerk-sync";
 import { verifyWebhook } from "@clerk/nextjs/webhooks";
 import { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
-import { error } from "three";
 export async function POST(req: NextRequest) {
   try {
     const evt = await verifyWebhook(req);
@@ -17,6 +17,10 @@ export async function POST(req: NextRequest) {
           clerkId: id,
           createdAt: new Date(),
           updatedAt: new Date(),
+        });
+        await ClerkSyncService.syncMetadata(id, {
+          role: "Intern",
+          status: "PENDING_ONBOARDING",
         });
         return NextResponse.json({ message: "User created" }, { status: 201 });
       } catch (error) {
