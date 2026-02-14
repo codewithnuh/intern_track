@@ -16,12 +16,13 @@ import { toast } from "sonner";
 import Link from "next/link";
 import { OTPForm } from "@/components/otp-form";
 import { useRouter } from "next/navigation";
+import { AuthError } from "@/types/auth";
 
 export default function ForgotPasswordPage() {
   const router = useRouter();
   const [verifiedOTP, setVerifiedOTP] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string>("");
+  const [error, setError] = useState<AuthError | null>(null);
   const { isLoaded, setActive, signIn } = useSignIn();
   const [email, setEmail] = useState("");
   const [emailSent, setEmailSent] = useState(false);
@@ -32,7 +33,7 @@ export default function ForgotPasswordPage() {
     if (!isLoaded) return;
 
     setIsLoading(true);
-    setError("");
+    setError(null);
 
     try {
       const attempt = await signIn?.attemptFirstFactor({
@@ -44,15 +45,17 @@ export default function ForgotPasswordPage() {
         setVerifiedOTP(true);
         toast.success("Code verified! Please set your new password.");
       } else {
-        setError("Verification failed. Please try again.");
+        setError({ message: "Verification failed. Please try again." });
         toast.error("Invalid verification code");
       }
     } catch (err) {
       if (isClerkAPIResponseError(err)) {
-        setError(err.errors?.[0]?.message || "Verification failed.");
+        setError({
+          message: err.errors?.[0]?.message || "Verification failed.",
+        });
         toast.error(err.errors?.[0]?.message || "Verification failed");
       } else {
-        setError("Verification failed.");
+        setError({ message: "Verification failed." });
         toast.error("Verification failed");
       }
     } finally {
@@ -64,7 +67,7 @@ export default function ForgotPasswordPage() {
     if (!isLoaded) return;
 
     setIsLoading(true);
-    setError("");
+    setError(null);
 
     try {
       await signIn?.create({
@@ -74,7 +77,10 @@ export default function ForgotPasswordPage() {
       toast.success("New verification code sent!");
     } catch (error) {
       if (isClerkAPIResponseError(error)) toast.error(error.message);
-      else setError("An unexpected error occurred. Please try again later.");
+      else
+        setError({
+          message: "An unexpected error occurred. Please try again later.",
+        });
       toast.error("An unexpected error occurred. Please try again later.");
     } finally {
       setIsLoading(false);
@@ -104,18 +110,18 @@ export default function ForgotPasswordPage() {
 
   const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
+    setError(null);
 
     // Validate passwords match
     if (newPassword !== confirmPassword) {
-      setError("Passwords do not match");
+      setError({ message: "Passwords do not match" });
       toast.error("Passwords do not match");
       return;
     }
 
     // Validate password length
     if (newPassword.length < 8) {
-      setError("Password must be at least 8 characters");
+      setError({ message: "Password must be at least 8 characters" });
       toast.error("Password must be at least 8 characters");
       return;
     }
@@ -135,15 +141,19 @@ export default function ForgotPasswordPage() {
         toast.success("Password reset successful!");
         router.push("/dashboard");
       } else {
-        setError("Unable to reset password. Please try again.");
+        setError({ message: "Unable to reset password. Please try again." });
         toast.error("Password reset failed");
       }
     } catch (err) {
       if (isClerkAPIResponseError(err)) {
-        setError(err.errors?.[0]?.message || "Failed to reset password");
+        setError({
+          message: err.errors?.[0]?.message || "Failed to reset password",
+        });
         toast.error(err.errors?.[0]?.message || "Failed to reset password");
       } else {
-        setError("An unexpected error occurred. Please try again later.");
+        setError({
+          message: "An unexpected error occurred. Please try again later.",
+        });
         toast.error("An unexpected error occurred. Please try again later.");
       }
     } finally {
@@ -179,7 +189,7 @@ export default function ForgotPasswordPage() {
 
                   {error && (
                     <div className="bg-destructive/15 text-destructive text-sm p-3 rounded-md">
-                      {error}
+                      {error.message}
                     </div>
                   )}
 
@@ -246,7 +256,7 @@ export default function ForgotPasswordPage() {
             error={error}
             onBack={() => {
               setEmailSent(false);
-              setError("");
+              setError(null);
             }}
           />
         ) : (
@@ -264,7 +274,7 @@ export default function ForgotPasswordPage() {
 
                   {error && (
                     <FieldError className="bg-destructive/15 text-destructive text-sm p-3 rounded-md">
-                      {error}
+                      {error.message}
                     </FieldError>
                   )}
 

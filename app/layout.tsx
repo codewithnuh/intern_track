@@ -6,6 +6,8 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "sonner";
 import { Navbar } from "@/components/globals/nav";
 import { Footer } from "@/components/globals/footer";
+import { Container } from "@/components/globals/container";
+import { TooltipProvider } from "@/components/ui/tooltip";
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
 const geistSans = Geist({
@@ -40,10 +42,12 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
-            <Navbar />
-            {children}
-            <Footer />
-            <Toaster />
+            {/*<Navbar />*/}
+            <Container>
+              <TooltipProvider>{children}</TooltipProvider>
+              <Toaster />
+            </Container>
+            {/*<Footer />*/}
           </ThemeProvider>
         </body>
       </html>

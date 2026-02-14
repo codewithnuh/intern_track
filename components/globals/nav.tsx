@@ -10,13 +10,13 @@ import {
 } from "@/components/ui/popover";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Container } from "./container";
-import { Settings, LogOut, User, Clipboard } from "lucide-react";
+import { Settings, User, Clipboard } from "lucide-react";
 import LogoutButton from "./logout-button";
 
 export const Navbar: React.FC = async () => {
   const user = await currentUser();
   return (
-    <nav className="fixed top-0 z-50 w-full border-b border-white/5 bg-charcoal/80 backdrop-blur-xl">
+    <nav className="fixed  top-0 z-50 w-full border-b border-white/5 bg-charcoal/80 backdrop-blur-xl">
       <Container>
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
           <div className="flex items-center gap-3 group cursor-pointer">

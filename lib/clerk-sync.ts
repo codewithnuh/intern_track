@@ -1,9 +1,9 @@
-import { UserStatus } from "@/schemas/user.schema";
+import { Role, UserStatus } from "@/schemas/user.schema";
 import { clerkClient } from "@clerk/nextjs/server";
 export const ClerkSyncService = {
   async syncMetadata(
     clerkId: string,
-    data: { role: string; status: UserStatus },
+    data: { role: Role; status: UserStatus },
   ) {
     const client = await clerkClient();
 
